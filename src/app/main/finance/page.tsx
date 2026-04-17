@@ -113,7 +113,7 @@ export default function FinancePage() {
           <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Finance</h1>
           <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Track income and expenses</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-4">
           <button className="btn-secondary flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export
@@ -299,7 +299,7 @@ export default function FinancePage() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="label">Category</label>
                   <select
@@ -323,7 +323,7 @@ export default function FinancePage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="label">Date</label>
                   <input

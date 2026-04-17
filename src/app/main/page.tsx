@@ -314,7 +314,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Dashboard</h1>
         <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>Welcome back! Here&apos;s what&apos;s happening today.</p>
       </div>

@@ -190,7 +190,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <h2
           className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-800"}`}
         >
-          Admin Panel
+          Admin
         </h2>
       </div>
 
