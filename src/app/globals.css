@@ -78,6 +78,7 @@ body {
     background: var(--bg-card);
     border-color: var(--border-color);
     color: var(--text-main);
+    width: 100% !important;
   }
   .input:focus {
     --tw-ring-color: var(--primary);
