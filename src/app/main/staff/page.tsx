@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Search, Briefcase, Edit, Trash2, Shield, Users, MapPin, Calendar, Mail, Phone } from 'lucide-react';
+import { Plus, Search, Briefcase, Edit, Trash2, Users } from 'lucide-react';
 import { useTheme } from '../../components/ThemeProvider';
 import { useToast } from '../../components/Toast';
 
