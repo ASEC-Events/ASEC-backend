@@ -99,7 +99,10 @@ export default function EventsPage() {
         await fetch("/api/bookings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            bookingSource: "admin",
+          }),
         });
         showToast("Event added successfully", "success");
       }

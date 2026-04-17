@@ -1,5 +1,6 @@
 'use client';
 
+import { } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -8,6 +9,7 @@ import {
   DollarSign, 
   Users, 
   Settings,
+  Bell,
   X
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
@@ -15,6 +17,7 @@ import { useTheme } from './ThemeProvider';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  unreadCount?: number;
 }
 
 const navigation = [
@@ -22,10 +25,11 @@ const navigation = [
   { name: 'Events', href: '/main/events', icon: Calendar },
   { name: 'Finance', href: '/main/finance', icon: DollarSign },
   { name: 'Staff', href: '/main/staff', icon: Users },
+  { name: 'Notifications', href: '/main/notifications', icon: Bell, showBadge: true },
   { name: 'Settings', href: '/main/settings', icon: Settings },
 ];
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, unreadCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const { theme, mounted } = useTheme();
 
@@ -64,7 +68,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                  flex items-center gap-3 px-4 py-3 rounded-lg transition-colors relative
                   ${isActive 
                     ? 'bg-primary text-white' 
                     : isDark 
@@ -75,6 +79,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               >
                 <item.icon className="w-5 h-5" />
                 {item.name}
+                {item.showBadge && unreadCount > 0 && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}

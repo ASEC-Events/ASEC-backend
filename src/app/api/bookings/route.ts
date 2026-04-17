@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
     
     const data = await request.json();
     const { fullName, eventType, eventDate, expectedGuests } = data;
+    const bookingSource =
+      data.bookingSource === "admin" || data.source === "admin"
+        ? "admin"
+        : "frontend";
 
     if (!fullName || !eventType || !eventDate || !expectedGuests) {
       return NextResponse.json(
@@ -35,16 +39,33 @@ export async function POST(request: NextRequest) {
     }
 
     const bookingRef = db.collection("bookings").doc();
+    const bookingId = bookingRef.id;
     await bookingRef.set({
       ...data,
+      bookingSource,
       status: "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 
+    if (bookingSource !== "admin") {
+      await db.collection("notifications").add({
+        type: "booking_created",
+        title: "New Booking",
+        message: `${data.fullName} booked for ${data.eventType} on ${data.eventDate}`,
+        read: false,
+        createdAt: Date.now(),
+        data: {
+          bookingId,
+          ...data,
+          bookingSource,
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      id: bookingRef.id,
+      id: bookingId,
     });
   } catch (error: any) {
     console.error("Booking error:", error);

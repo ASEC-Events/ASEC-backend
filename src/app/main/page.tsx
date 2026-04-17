@@ -7,7 +7,8 @@ import {
   DollarSign, 
   Clock,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Minus,
 } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import Link from 'next/link';
@@ -23,6 +24,7 @@ interface Booking {
   description: string;
   status: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 interface Transaction {
@@ -30,7 +32,15 @@ interface Transaction {
   description: string;
   amount: number;
   type: string;
-  date: string;
+  date?: string;
+  createdAt?: number;
+}
+
+interface StaffMember {
+  id: string;
+  status?: string;
+  createdAt?: number;
+  hireDate?: string;
 }
 
 interface Stats {
@@ -38,6 +48,65 @@ interface Stats {
   totalStaff: number;
   monthlyRevenue: number;
   pendingBookings: number;
+  bookingsChange: number;
+  staffChange: number;
+  revenueChange: number;
+  pendingChange: number;
+}
+
+type TrendDirection = 'up' | 'down' | 'neutral';
+
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function getTimestamp(value: number | string | undefined): number | null {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value !== 'string' || !value.trim()) {
+    return null;
+  }
+
+  if (DATE_ONLY_PATTERN.test(value)) {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day).getTime();
+  }
+
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function isInRange(
+  value: number | string | undefined,
+  rangeStart: number,
+  rangeEnd: number,
+) {
+  const timestamp = getTimestamp(value);
+  return timestamp !== null && timestamp >= rangeStart && timestamp < rangeEnd;
+}
+
+function calculatePercentageChange(current: number, previous: number) {
+  if (previous === 0) {
+    return current === 0 ? 0 : 100;
+  }
+
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+function getTrendDirection(change: number): TrendDirection {
+  if (change > 0) {
+    return 'up';
+  }
+
+  if (change < 0) {
+    return 'down';
+  }
+
+  return 'neutral';
+}
+
+function formatChange(change: number) {
+  return `${change > 0 ? '+' : ''}${change}%`;
 }
 
 const eventTypeLabels: Record<string, string> = {
@@ -59,7 +128,11 @@ export default function DashboardPage() {
     totalBookings: 0,
     totalStaff: 0,
     monthlyRevenue: 0,
-    pendingBookings: 0
+    pendingBookings: 0,
+    bookingsChange: 0,
+    staffChange: 0,
+    revenueChange: 0,
+    pendingChange: 0,
   });
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -68,9 +141,26 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        const now = new Date();
+        const currentMonthStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1,
+        ).getTime();
+        const nextMonthStart = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          1,
+        ).getTime();
+        const previousMonthStart = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          1,
+        ).getTime();
+
         const [bookingsRes, transactionsRes, staffRes] = await Promise.all([
           fetch('/api/bookings'),
-          fetch('/api/finance?limit=10'),
+          fetch('/api/finance?limit=100'),
           fetch('/api/staff')
         ]);
 
@@ -79,19 +169,86 @@ export default function DashboardPage() {
         const staffData = await staffRes.json();
 
         const bookingsArray = Array.isArray(bookingsData) ? bookingsData : [];
+        const transactionsArray = Array.isArray(transactionsData) ? transactionsData : [];
+        const staffArray = Array.isArray(staffData) ? staffData : [];
+
         setBookings(bookingsArray);
-        setTransactions(Array.isArray(transactionsData) ? transactionsData : []);
+        setTransactions(transactionsArray.slice(0, 10));
         
-        const revenue = Array.isArray(transactionsData)
-          ? transactionsData.reduce((sum: number, t: Transaction) => 
-              t.type === 'income' ? sum + t.amount : sum + t.amount, 0)
-          : 0;
+        const currentMonthTransactions = transactionsArray.filter((t: Transaction) => {
+          return isInRange(
+            t.date ?? t.createdAt,
+            currentMonthStart,
+            nextMonthStart,
+          );
+        });
+        
+        const prevMonthTransactions = transactionsArray.filter((t: Transaction) => {
+          return isInRange(
+            t.date ?? t.createdAt,
+            previousMonthStart,
+            currentMonthStart,
+          );
+        });
+
+        const currentRevenue = currentMonthTransactions
+          .filter((t: Transaction) => t.type === 'income')
+          .reduce((sum: number, t: Transaction) => sum + (t.amount || 0), 0);
+          
+        const prevRevenue = prevMonthTransactions
+          .filter((t: Transaction) => t.type === 'income')
+          .reduce((sum: number, t: Transaction) => sum + (t.amount || 0), 0);
+
+        const currentMonthBookings = bookingsArray.filter((b: Booking) => {
+          return isInRange(b.createdAt, currentMonthStart, nextMonthStart);
+        });
+        
+        const prevMonthBookings = bookingsArray.filter((b: Booking) => {
+          return isInRange(b.createdAt, previousMonthStart, currentMonthStart);
+        });
+
+        const currentMonthStaff = staffArray.filter((member: StaffMember) => {
+          return isInRange(
+            member.hireDate ?? member.createdAt,
+            currentMonthStart,
+            nextMonthStart,
+          );
+        });
+
+        const prevMonthStaff = staffArray.filter((member: StaffMember) => {
+          return isInRange(
+            member.hireDate ?? member.createdAt,
+            previousMonthStart,
+            currentMonthStart,
+          );
+        });
+
+        const currentMonthPendingBookings = currentMonthBookings.filter(
+          (booking: Booking) => booking.status === 'pending',
+        );
+
+        const prevMonthPendingBookings = prevMonthBookings.filter(
+          (booking: Booking) => booking.status === 'pending',
+        );
 
         setStats({
           totalBookings: bookingsArray.length,
-          totalStaff: Array.isArray(staffData) ? staffData.length : 0,
-          monthlyRevenue: revenue,
-          pendingBookings: bookingsArray.filter((b: Booking) => b.status === 'pending').length
+          totalStaff: staffArray.length,
+          monthlyRevenue: currentRevenue,
+          pendingBookings: bookingsArray.filter((b: Booking) => b.status === 'pending').length,
+          bookingsChange: calculatePercentageChange(
+            currentMonthBookings.length,
+            prevMonthBookings.length,
+          ),
+          staffChange: calculatePercentageChange(
+            currentMonthStaff.length,
+            prevMonthStaff.length,
+          ),
+          revenueChange: calculatePercentageChange(currentRevenue, prevRevenue),
+          pendingChange: calculatePercentageChange(
+            currentMonthPendingBookings.length,
+            prevMonthPendingBookings.length,
+          ),
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -124,29 +281,33 @@ export default function DashboardPage() {
     {
       name: 'Total Bookings',
       value: stats.totalBookings.toString(),
-      change: '+12%',
-      trend: 'up',
+      change: formatChange(stats.bookingsChange),
+      trend: getTrendDirection(stats.bookingsChange),
+      caption: 'new bookings vs last month',
       icon: Calendar,
     },
     {
       name: 'Total Staff',
       value: stats.totalStaff.toString(),
-      change: '+5%',
-      trend: 'up',
+      change: formatChange(stats.staffChange),
+      trend: getTrendDirection(stats.staffChange),
+      caption: 'new staff vs last month',
       icon: Users,
     },
     {
       name: 'Monthly Revenue',
       value: formatCurrency(stats.monthlyRevenue),
-      change: '+8%',
-      trend: 'up',
+      change: formatChange(stats.revenueChange),
+      trend: getTrendDirection(stats.revenueChange),
+      caption: 'vs last month',
       icon: DollarSign,
     },
     {
       name: 'Pending Bookings',
       value: stats.pendingBookings.toString(),
-      change: '-3%',
-      trend: 'down',
+      change: formatChange(stats.pendingChange),
+      trend: getTrendDirection(stats.pendingChange),
+      caption: 'new pending vs last month',
       icon: Clock,
     },
   ];
@@ -173,13 +334,23 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1 mt-3">
               {stat.trend === 'up' ? (
                 <ArrowUpRight className="w-4 h-4 text-green-500" />
-              ) : (
+              ) : stat.trend === 'down' ? (
                 <ArrowDownRight className="w-4 h-4 text-red-500" />
+              ) : (
+                <Minus className={`w-4 h-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
               )}
-              <span className={`text-sm font-medium ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+              <span className={`text-sm font-medium ${
+                stat.trend === 'up'
+                  ? 'text-green-500'
+                  : stat.trend === 'down'
+                    ? 'text-red-500'
+                    : isDark
+                      ? 'text-slate-400'
+                      : 'text-slate-500'
+              }`}>
                 {stat.change}
               </span>
-              <span className={isDark ? 'text-slate-500' : 'text-slate-500'}>vs last month</span>
+              <span className={isDark ? 'text-slate-500' : 'text-slate-500'}>{stat.caption}</span>
             </div>
           </div>
         ))}
