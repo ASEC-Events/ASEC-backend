@@ -90,15 +90,6 @@ body {
     width: 100%;
     max-width: 100%;
     font-size: 16px;
-    min-height: 42px;
-  }
-  
-  @supports (-webkit-touch-callout: none) {
-    input[type="date"] {
-      font-size: 16px !important;
-      padding: 8px 12px;
-      border-radius: 6px;
-    }
   }
   .input:focus {
     --tw-ring-color: var(--primary);
