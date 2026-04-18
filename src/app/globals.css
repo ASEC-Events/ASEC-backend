@@ -116,3 +116,8 @@ button {
 a {
   cursor: pointer;
 }
+
+.sticky {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+}
