@@ -51,7 +51,14 @@ export default function EventsPage() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deleteEvent, setDeleteEvent] = useState<Event | null>(null);
   const [viewEvent, setViewEvent] = useState<Event | null>(null);
+  const [dateConflict, setDateConflict] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const checkDateConflict = (date: string) => {
+    if (!date || !events.length) return null;
+    const conflict = events.find(e => e.eventDate === date && e.status !== 'cancelled');
+    return conflict ? conflict.fullName : null;
+  };
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
@@ -142,6 +149,7 @@ export default function EventsPage() {
 
   const handleEdit = (event: Event) => {
     setEditingEvent(event);
+    setDateConflict(null);
     setFormData({
       fullName: event.fullName || "",
       email: event.email || "",
@@ -226,6 +234,7 @@ export default function EventsPage() {
               specialRequests: "",
               status: "pending",
             });
+            setDateConflict(null);
             setShowModal(true);
           }}
           className="btn-primary flex items-center gap-2"
@@ -377,11 +386,21 @@ export default function EventsPage() {
                   <input
                     type="date"
                     value={formData.eventDate}
-                    onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-                    className="input w-full  xs:max-w-full"
+                    onChange={(e) => {
+                      const date = e.target.value;
+                      setFormData({ ...formData, eventDate: date });
+                      const conflictName = checkDateConflict(date);
+                      setDateConflict(conflictName);
+                    }}
+                    className="input w-full xs:max-w-full"
                     min={new Date().toISOString().split('T')[0]}
                     required
                   />
+                  {dateConflict && (
+                    <p className="text-sm text-red-500 mt-1">
+                      Warning: {dateConflict} has an event on this date
+                    </p>
+                  )}
                 </div>
               </div>
 

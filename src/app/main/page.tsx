@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { 
-  Calendar, 
   Users, 
   DollarSign, 
   Clock,
   ArrowUpRight,
   ArrowDownRight,
   Minus,
+  CalendarDays,
 } from 'lucide-react';
+import Calendar from '../components/Calendar';
 import { useTheme } from '../components/ThemeProvider';
 import Link from 'next/link';
 
@@ -284,7 +285,7 @@ export default function DashboardPage() {
       change: formatChange(stats.bookingsChange),
       trend: getTrendDirection(stats.bookingsChange),
       caption: 'new bookings vs last month',
-      icon: Calendar,
+      icon: CalendarDays,
     },
     {
       name: 'Total Staff',
@@ -391,28 +392,9 @@ export default function DashboardPage() {
 
         <div className={`card ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white'}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Recent Transactions</h2>
-            <Link href="/main/finance" className="text-sm text-primary hover:underline">View All</Link>
+            <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Event Calendar</h2>
           </div>
-          <div className="space-y-3">
-            {transactions.length > 0 ? (
-              transactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between">
-                  <div>
-                    <p className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{transaction.description}</p>
-                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{transaction.date}</p>
-                  </div>
-                  <span className={`font-semibold ${
-                    transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {transaction.type === 'income' ? '+' : '-'}₦{transaction.amount.toLocaleString()}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className={`text-center py-4 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>No transactions found</p>
-            )}
-          </div>
+          <Calendar events={bookings} isDark={isDark} />
         </div>
       </div>
     </div>
