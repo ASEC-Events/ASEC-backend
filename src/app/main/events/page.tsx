@@ -82,7 +82,7 @@ export default function EventsPage() {
     expectedGuests: "",
     description: "",
     specialRequests: "",
-    status: "pending",
+    status: "",
   });
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function EventsPage() {
         expectedGuests: "",
         description: "",
         specialRequests: "",
-        status: "pending",
+        status: "",
       });
       fetchEvents();
     } catch (error) {
@@ -159,7 +159,7 @@ export default function EventsPage() {
       expectedGuests: event.expectedGuests || "",
       description: event.description || "",
       specialRequests: event.specialRequests || "",
-      status: event.status || "pending",
+      status: event.status || "",
     });
     setShowModal(true);
   };
@@ -213,8 +213,8 @@ export default function EventsPage() {
     );
   }
 
-  return (
-    <div className="space-y-6">
+return (
+    <div className="space-y-6 overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Events</h1>
@@ -319,7 +319,7 @@ export default function EventsPage() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div ref={modalRef} className={`rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
             <div className={`p-3 border-b flex items-center justify-between ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
               <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
@@ -472,7 +472,7 @@ export default function EventsPage() {
             </form>
             </div>
           </div>
-        </div>
+       </div>
       )}
 
       {deleteEvent && (

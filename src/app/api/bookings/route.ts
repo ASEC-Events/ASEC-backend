@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     await bookingRef.set({
       ...data,
       bookingSource,
-      status: "pending",
+      status: data.status || "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
