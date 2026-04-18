@@ -90,7 +90,6 @@ function calculatePercentageChange(current: number, previous: number) {
   if (previous === 0) {
     return current === 0 ? 0 : 100;
   }
-
   return Math.round(((current - previous) / previous) * 100);
 }
 
@@ -143,21 +142,11 @@ export default function DashboardPage() {
     async function fetchData() {
       try {
         const now = new Date();
-        const currentMonthStart = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          1,
-        ).getTime();
-        const nextMonthStart = new Date(
-          now.getFullYear(),
-          now.getMonth() + 1,
-          1,
-        ).getTime();
-        const previousMonthStart = new Date(
-          now.getFullYear(),
-          now.getMonth() - 1,
-          1,
-        ).getTime();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const prevMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
         const [bookingsRes, transactionsRes, staffRes] = await Promise.all([
           fetch('/api/bookings'),
@@ -176,20 +165,24 @@ export default function DashboardPage() {
         setBookings(bookingsArray);
         setTransactions(transactionsArray.slice(0, 10));
         
+        const isCurrentMonth = (timestamp: number) => {
+          const date = new Date(timestamp);
+          return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+        };
+        
+        const isPrevMonth = (timestamp: number) => {
+          const date = new Date(timestamp);
+          return date.getMonth() === prevMonth && date.getFullYear() === prevMonthYear;
+        };
+
         const currentMonthTransactions = transactionsArray.filter((t: Transaction) => {
-          return isInRange(
-            t.date ?? t.createdAt,
-            currentMonthStart,
-            nextMonthStart,
-          );
+          const ts = t.date ? new Date(t.date).getTime() : t.createdAt;
+          return ts && isCurrentMonth(ts);
         });
         
         const prevMonthTransactions = transactionsArray.filter((t: Transaction) => {
-          return isInRange(
-            t.date ?? t.createdAt,
-            previousMonthStart,
-            currentMonthStart,
-          );
+          const ts = t.date ? new Date(t.date).getTime() : t.createdAt;
+          return ts && isPrevMonth(ts);
         });
 
         const currentRevenue = currentMonthTransactions
@@ -201,27 +194,23 @@ export default function DashboardPage() {
           .reduce((sum: number, t: Transaction) => sum + (t.amount || 0), 0);
 
         const currentMonthBookings = bookingsArray.filter((b: Booking) => {
-          return isInRange(b.createdAt, currentMonthStart, nextMonthStart);
+          const ts = b.createdAt;
+          return ts && isCurrentMonth(ts);
         });
         
         const prevMonthBookings = bookingsArray.filter((b: Booking) => {
-          return isInRange(b.createdAt, previousMonthStart, currentMonthStart);
+          const ts = b.createdAt;
+          return ts && isPrevMonth(ts);
         });
 
         const currentMonthStaff = staffArray.filter((member: StaffMember) => {
-          return isInRange(
-            member.hireDate ?? member.createdAt,
-            currentMonthStart,
-            nextMonthStart,
-          );
+          const ts = member.hireDate ? new Date(member.hireDate).getTime() : member.createdAt;
+          return ts && isCurrentMonth(ts);
         });
 
         const prevMonthStaff = staffArray.filter((member: StaffMember) => {
-          return isInRange(
-            member.hireDate ?? member.createdAt,
-            previousMonthStart,
-            currentMonthStart,
-          );
+          const ts = member.hireDate ? new Date(member.hireDate).getTime() : member.createdAt;
+          return ts && isPrevMonth(ts);
         });
 
         const currentMonthPendingBookings = currentMonthBookings.filter(
@@ -273,10 +262,13 @@ export default function DashboardPage() {
     );
   }
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const upcomingBookings = bookings
-    .filter(b => b.eventDate)
+    .filter(b => b.eventDate && b.status !== 'cancelled' && new Date(b.eventDate).getTime() >= today.getTime())
     .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
-    .slice(0, 5);
+    .slice(0, 4);
 
   const statsData = [
     {

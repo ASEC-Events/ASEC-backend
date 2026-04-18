@@ -393,7 +393,6 @@ return (
                       setDateConflict(conflictName);
                     }}
                     className="input w-full xs:max-w-full"
-                    min={new Date().toISOString().split('T')[0]}
                     required
                   />
                   {dateConflict && (
