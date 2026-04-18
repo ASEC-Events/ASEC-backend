@@ -46,7 +46,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
         <Sidebar isOpen={false} onClose={() => {}} unreadCount={0} />
         <div className="flex-1 flex flex-col h-full">
           <Header onMenuClick={() => setSidebarOpen(true)} />
-<main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
         </div>
       </div>
     );

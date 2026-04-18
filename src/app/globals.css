@@ -27,7 +27,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-th, td {
+th{
+  white-space: nowrap;
+}
+
+td{
   white-space: nowrap;
 }
 
@@ -35,11 +39,6 @@ body {
   background: var(--bg-main);
   color: var(--text-main);
   font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
-}
-
-main {
-  overflow-x: hidden !important;
 }
 
 @keyframes slideIn {
