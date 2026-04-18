@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, Search, DollarSign, TrendingUp, TrendingDown, Download, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Plus, Search, DollarSign, TrendingUp, TrendingDown, Download, Trash2, X } from 'lucide-react';
 import { useTheme } from '../../components/ThemeProvider';
 import { useToast } from '../../components/Toast';
 
@@ -27,6 +27,21 @@ export default function FinancePage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [showModal, setShowModal] = useState(false);
   const [deleteTransaction, setDeleteTransaction] = useState<Transaction | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      setShowModal(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showModal, handleClickOutside]);
+
   const [formData, setFormData] = useState({
     description: '',
     category: 'Venue Rental',
@@ -259,11 +274,14 @@ export default function FinancePage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className={`${isDark ? 'bg-slate-800' : 'bg-white'} rounded-xl w-full max-w-lg`}>
-            <div className={`p-6 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+          <div ref={modalRef} className={`${isDark ? 'bg-slate-800' : 'bg-white'} rounded-xl w-full max-w-lg flex flex-col`}>
+            <div className={`p-4 border-b flex items-center justify-between sticky top-0 z-10 ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
               <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Add Transaction</h2>
+              <button type="button" onClick={() => setShowModal(false)} className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}>
+                <X className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`} />
+              </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="label">Type</label>
                 <div className="flex gap-4">
@@ -330,7 +348,7 @@ export default function FinancePage() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="input w-full max-w-50 xs:max-w-full"
+                    className="input w-full xs:max-w-full"
                     required
                   />
                 </div>
