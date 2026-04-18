@@ -122,7 +122,7 @@ export default function FinancePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Finance</h1>
