@@ -27,12 +27,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
-th{
+th, td {
   white-space: nowrap;
 }
 
-td{
-  white-space: nowrap;
+@media (max-width: 768px) {
+  th, td {
+    white-space: normal;
+    min-width: 100px;
+  }
 }
 
 body {
