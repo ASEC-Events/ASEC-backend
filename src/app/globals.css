@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #3F00FF;
+  --primary: #3f00ff;
   --primary-hover: #2a00cc;
   --bg-main: #ffffff;
   --bg-card: #ffffff;
@@ -27,11 +27,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-th{
+th {
   white-space: nowrap;
 }
 
-td{
+td {
   white-space: nowrap;
 }
 
@@ -58,7 +58,7 @@ body {
     background: var(--bg-card);
     border-color: var(--border-color);
   }
-  
+
   .btn-primary {
     @apply text-white px-4 py-2 rounded-lg transition-colors font-medium cursor-pointer;
     background-color: var(--primary);
@@ -66,7 +66,7 @@ body {
   .btn-primary:hover {
     background-color: var(--primary-hover);
   }
-  
+
   .btn-secondary {
     @apply px-4 py-2 rounded-lg transition-colors font-medium cursor-pointer;
     background-color: #f1f5f9;
@@ -76,7 +76,7 @@ body {
     background-color: #334155;
     color: #e2e8f0;
   }
-  
+
   .input {
     @apply w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 cursor-pointer;
     background: var(--bg-card);
@@ -84,8 +84,12 @@ body {
     color: var(--text-main);
     width: 100%;
     max-width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    overflow: hidden;
   }
-  
+
   input[type="date"] {
     width: 100%;
     max-width: 100%;
@@ -94,12 +98,12 @@ body {
   .input:focus {
     --tw-ring-color: var(--primary);
   }
-  
+
   .label {
     @apply block text-sm font-medium mb-1;
     color: var(--text-muted);
   }
-  
+
   .animate-slide-in {
     animation: slideIn 0.3s ease-out;
   }
