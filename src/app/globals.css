@@ -78,7 +78,14 @@ body {
     background: var(--bg-card);
     border-color: var(--border-color);
     color: var(--text-main);
-    width: 100% !important;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
   }
   .input:focus {
     --tw-ring-color: var(--primary);

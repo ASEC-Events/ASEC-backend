@@ -351,7 +351,7 @@ export default function StaffPage() {
                     type="date"
                     value={formData.hireDate}
                     onChange={(e) => setFormData({ ...formData, hireDate: e.target.value })}
-                    className="input"
+                    className="input w-full max-w-50 xs:max-w-full"
                     required
                   />
                 </div>

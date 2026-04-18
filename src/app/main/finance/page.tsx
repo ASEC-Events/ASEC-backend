@@ -330,7 +330,7 @@ export default function FinancePage() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="input"
+                    className="input w-full max-w-50 xs:max-w-full"
                     required
                   />
                 </div>

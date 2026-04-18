@@ -360,7 +360,7 @@ export default function EventsPage() {
                     type="date"
                     value={formData.eventDate}
                     onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-                    className="input"
+                    className="input w-full max-w-50 xs:max-w-full"
                     min={new Date().toISOString().split('T')[0]}
                     required
                   />
