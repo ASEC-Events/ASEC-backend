@@ -275,8 +275,8 @@ export default function FinancePage() {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div ref={modalRef} className={`${isDark ? 'bg-slate-800' : 'bg-white'} rounded-xl w-full max-w-lg flex flex-col`}>
-            <div className={`p-4 border-b flex items-center justify-between sticky top-0 z-10 ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
-              <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Add Transaction</h2>
+            <div className={`p-4 border-b flex items-center justify-between ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>Add Transaction</h2>
               <button type="button" onClick={() => setShowModal(false)} className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}>
                 <X className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`} />
               </button>
