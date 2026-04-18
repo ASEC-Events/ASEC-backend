@@ -283,7 +283,7 @@ export default function StaffPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div ref={modalRef} className={`${isDark ? 'bg-slate-800' : 'bg-white'} rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col`}>
-            <div className={`p-3 border-b flex items-center justify-between sticky top-0 z-10 ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
+            <div className={`p-3 border-b flex items-center justify-between ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
               <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
                 {editingStaff ? "Edit Staff" : "Add New Staff"}
               </h2>
