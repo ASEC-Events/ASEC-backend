@@ -68,9 +68,14 @@ export async function POST(request: NextRequest) {
 
     const paystack = new Paystack(process.env.PAYSTACK_SECRET_KEY || "");
     
-    const baseUrl = process.env.NEXT_PUBLIC_PAYMENT_URL?.replace("/pay", "") || 
+    let baseUrl = process.env.NEXT_PUBLIC_PAYMENT_URL?.replace("/pay", "") || 
       process.env.VERCEL_URL || 
       "http://localhost:3000";
+    
+    // Ensure baseUrl has https:// prefix
+    if (baseUrl && !baseUrl.startsWith("http")) {
+      baseUrl = `https://${baseUrl}`;
+    }
 
     const callbackUrl = `${baseUrl}/pay/callback?invoice=${invoiceId}`;
     
@@ -83,7 +88,6 @@ export async function POST(request: NextRequest) {
         customerName: name,
         invoiceNumber: invoiceData.invoiceNumber,
       }),
-      callbackUrl,
       redirectUrl: callbackUrl,
     };
 
