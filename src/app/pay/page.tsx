@@ -37,16 +37,22 @@ function PayPageContent() {
       }
 
       try {
+        console.log("Fetching invoice:", invoiceId);
         const res = await fetch(`/api/invoices?id=${invoiceId}`);
+        console.log("Response:", res.status);
         if (!res.ok) {
-          throw new Error("Invoice not found");
+          const errData = await res.json();
+          console.log("Error:", errData);
+          throw new Error(errData.error || "Invoice not found");
         }
         const data = await res.json();
+        console.log("Invoice data:", data);
         setInvoice(data);
         setEmail(data.customerEmail || "");
         setName(data.customerName || "");
-      } catch (err) {
-        setError("Invoice not found");
+      } catch (err: any) {
+        console.error("Fetch error:", err);
+        setError(err.message || "Invoice not found");
       } finally {
         setLoading(false);
       }

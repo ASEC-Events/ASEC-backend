@@ -44,13 +44,28 @@ export async function GET(request: NextRequest) {
     const db = getFirestore();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const number = searchParams.get("number");
+
+    console.log("Fetching invoice with id:", id, "number:", number);
 
     if (id) {
       const invoiceDoc = await db.collection(INVOICES_COLLECTION).doc(id).get();
+      console.log("Invoice exists:", invoiceDoc.exists);
       if (!invoiceDoc.exists) {
         return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
       }
-      return NextResponse.json({ id: invoiceDoc.id, ...invoiceDoc.data() });
+      const data = invoiceDoc.data();
+      console.log("Invoice data:", data);
+      return NextResponse.json({ id: invoiceDoc.id, ...data });
+    } else if (number) {
+      const snapshot = await db.collection(INVOICES_COLLECTION).where("invoiceNumber", "==", number).get();
+      if (snapshot.empty) {
+        return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      }
+      const doc = snapshot.docs[0];
+      const data = doc.data();
+      console.log("Invoice data by number:", data);
+      return NextResponse.json({ id: doc.id, ...data });
     }
 
     const snapshot = await db
