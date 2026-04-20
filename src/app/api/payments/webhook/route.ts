@@ -45,11 +45,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const { reference, metadata, amount, customer } = event.data;
-    const { invoiceId, invoiceNumber } = metadata || {};
+    const data = event.data || {};
+    const reference = data.reference;
+    const amount = data.amount;
+    const metadata = data.metadata || {};
+    const invoiceId = metadata.invoiceId;
+    const invoiceNumber = metadata.invoiceNumber;
 
     if (!invoiceId) {
-      console.error("No invoiceId in metadata");
       return NextResponse.json({ error: "No invoice ID" }, { status: 400 });
     }
 
@@ -60,14 +63,16 @@ export async function POST(request: NextRequest) {
     const invoiceDoc = await invoiceRef.get();
 
     if (!invoiceDoc.exists) {
-      console.error("Invoice not found:", invoiceId);
-      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      // Try by invoice number
+      const snapshot = await db.collection(INVOICES_COLLECTION).where("invoiceNumber", "==", invoiceId).get();
+      if (snapshot.empty) {
+        return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      }
     }
 
-    const invoiceData = invoiceDoc.data() as any;
+    const invoiceData = invoiceDoc?.data() as any;
 
-    if (invoiceData.status === "paid") {
-      console.log("Invoice already paid:", invoiceId);
+    if (invoiceData?.status === "paid") {
       return NextResponse.json({ received: true });
     }
 
