@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2, Eye, Loader2 } from "lucide-react";
+import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2, Eye, Loader2, Copy } from "lucide-react";
 import { useTheme } from "../../components/ThemeProvider";
 import { useToast } from "../../components/Toast";
 
@@ -111,6 +111,7 @@ export default function InvoicesPage() {
   );
 
   const handleCreateInvoice = async (booking: Booking, sendEmail: boolean) => {
+    setSending(true);
     try {
       const action = sendEmail ? "send" : "create";
       const res = await fetch("/api/invoices", {
@@ -137,6 +138,8 @@ export default function InvoicesPage() {
     } catch (error) {
       console.error("Error creating invoice:", error);
       showToast("Failed to create invoice", "error");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -168,6 +171,16 @@ export default function InvoicesPage() {
       showToast("Failed to send invoice", "error");
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleCopyLink = async (invoice: Invoice) => {
+    const paymentUrl = `${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-web-app.web.app/pay'}?invoice=${invoice.bookingId}`;
+    try {
+      await navigator.clipboard.writeText(paymentUrl);
+      showToast("Payment link copied!", "success");
+    } catch (error) {
+      showToast("Failed to copy link", "error");
     }
   };
 
@@ -343,6 +356,13 @@ export default function InvoicesPage() {
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
+                        <button
+                          onClick={() => handleCopyLink(invoice)}
+                          className="p-2 text-slate-500 hover:bg-slate-500/10 rounded-lg transition-colors"
+                          title="Copy Payment Link"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => setViewInvoice(invoice)}
                           className="p-2 text-slate-500 hover:bg-slate-500/10 rounded-lg transition-colors"
