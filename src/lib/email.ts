@@ -26,6 +26,7 @@ interface InvoiceEmailData {
   guests: number;
   status: "pending" | "confirmed" | "paid";
   invoiceId?: string;
+  bookingId?: string;
 }
 
 function generateInvoiceEmailHtml(data: InvoiceEmailData): string {

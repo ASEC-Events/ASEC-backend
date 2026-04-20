@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     const db = getFirestore();
 
     const { invoiceId, email, name, amount } = await request.json();
+    console.log("Initialize payment:", { invoiceId, email, name, amount });
 
     if (!invoiceId || !email || !amount) {
       return NextResponse.json(
@@ -36,10 +37,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const invoiceRef = db.collection(INVOICES_COLLECTION).doc(invoiceId);
-    const invoiceDoc = await invoiceRef.get();
-
+    let invoiceDoc;
+    let invoiceRef;
+    
+    // Try as document ID first
+    invoiceRef = db.collection(INVOICES_COLLECTION).doc(invoiceId);
+    invoiceDoc = await invoiceRef.get();
+    
     if (!invoiceDoc.exists) {
+      // Try as invoice number
+      const snapshot = await db.collection(INVOICES_COLLECTION).where("invoiceNumber", "==", invoiceId).get();
+      if (!snapshot.empty) {
+        invoiceDoc = snapshot.docs[0];
+        invoiceRef = db.collection(INVOICES_COLLECTION).doc(invoiceDoc.id);
+      }
+    }
+    
+    console.log("Invoice found:", invoiceDoc?.exists);
+
+    if (!invoiceDoc || !invoiceDoc.exists) {
       return NextResponse.json(
         { error: "Invoice not found" },
         { status: 404 }
@@ -57,7 +73,6 @@ export async function POST(request: NextRequest) {
 
     const paystack = new Paystack(process.env.PAYSTACK_SECRET_KEY || "");
     
-    const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "Event Center";
     const baseUrl = process.env.NEXT_PUBLIC_PAYMENT_URL?.replace("/pay", "") || 
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
@@ -73,12 +88,15 @@ export async function POST(request: NextRequest) {
       callbackUrl: `${baseUrl}/pay/callback?invoice=${invoiceId}`,
     };
 
+    console.log("Paystack args:", initializeArgs);
+    
     const response = await paystack.initializeTransaction(initializeArgs);
+    console.log("Paystack response:", response);
 
     if (!response.status) {
       console.error("Paystack error:", response);
       return NextResponse.json(
-        { error: "Failed to initialize payment" },
+        { error: response.message || "Failed to initialize payment" },
         { status: 500 }
       );
     }
