@@ -6,6 +6,7 @@ import { CheckCircle, Download, Mail, Home, Calendar } from "lucide-react";
 import Link from "next/link";
 
 interface InvoiceData {
+  id: string;
   invoiceNumber: string;
   customerName: string;
   customerEmail: string;
@@ -21,6 +22,29 @@ function SuccessContent() {
 
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [emailing, setEmailing] = useState(false);
+
+  const sendReceiptEmail = async () => {
+    if (!invoiceId) return;
+    setEmailing(true);
+    try {
+      const res = await fetch("/api/emails/invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId, sendType: "receipt" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Receipt sent to your email!");
+      } else {
+        alert("Failed to send receipt: " + data.message);
+      }
+    } catch (error) {
+      alert("Failed to send receipt");
+    } finally {
+      setEmailing(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -103,9 +127,22 @@ function SuccessContent() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors">
-                    <Mail className="w-4 h-4" />
-                    Email Receipt
+                  <button 
+                    onClick={sendReceiptEmail}
+                    disabled={emailing}
+                    className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors disabled:opacity-50"
+                  >
+                    {emailing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4" />
+                        Email Receipt
+                      </>
+                    )}
                   </button>
                 </div>
               </>

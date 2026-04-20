@@ -229,6 +229,7 @@ export default function StaffPage() {
                 <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Contact</th>
                 <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Role</th>
                 <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Department</th>
+                <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Account No.</th>
                 <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Hire Date</th>
                 <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Status</th>
                 <th className={`text-left py-3 px-4 text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Actions</th>
@@ -250,6 +251,9 @@ export default function StaffPage() {
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
                         {member.department}
                       </span>
+                    </td>
+                    <td className={`py-4 px-4 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                      {member.accountNumber || '-'}
                     </td>
                     <td className={`py-4 px-4 ${isDark ? 'text-slate-300' : 'text-slate-800'}`}>{member.hireDate}</td>
                     <td className="py-4 px-4">
@@ -307,7 +311,7 @@ export default function StaffPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">Email</label>
+                  <label className="label">Email (Optional)</label>
                   <input
                     type="email"
                     value={formData.email}
@@ -316,7 +320,7 @@ export default function StaffPage() {
                   />
                 </div>
                 <div>
-                  <label className="label">Phone</label>
+                  <label className="label">Phone (Optional)</label>
                   <input
                     type="tel"
                     value={formData.phone}

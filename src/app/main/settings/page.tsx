@@ -187,7 +187,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="label">Phone</label>
+                  <label className="label">Phone (Optional)</label>
                   <input
                     type="tel"
                     value={settings.phone}

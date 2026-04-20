@@ -352,7 +352,7 @@ return (
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">Email Address</label>
+                  <label className="label">Email Address (Optional)</label>
                   <input
                     type="email"
                     value={formData.email}
@@ -362,7 +362,7 @@ return (
                   />
                 </div>
                 <div>
-                  <label className="label">Phone Number</label>
+                  <label className="label">Phone Number (Optional)</label>
                   <input
                     type="tel"
                     value={formData.phone}

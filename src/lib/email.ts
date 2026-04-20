@@ -27,6 +27,7 @@ interface InvoiceEmailData {
   status: "pending" | "confirmed" | "paid";
   invoiceId?: string;
   bookingId?: string;
+  subject?: string;
 }
 
 function generateInvoiceEmailHtml(data: InvoiceEmailData): string {
@@ -112,7 +113,7 @@ export async function sendInvoiceEmail(data: InvoiceEmailData): Promise<boolean>
     const info = await transporter.sendMail({
       from: `"${companyName}" <${process.env.SMTP_USER}>`,
       to: data.to,
-      subject: `Invoice ${data.invoiceNumber} - ${companyName}`,
+      subject: data.subject || (data.status === "paid" ? `Receipt ${data.invoiceNumber} - ${companyName}` : `Invoice ${data.invoiceNumber} - ${companyName}`),
       html,
     });
 

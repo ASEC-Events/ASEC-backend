@@ -48,6 +48,7 @@ export default function InvoicesPage() {
   const [sending, setSending] = useState(false);
   const [deleteInvoice, setDeleteInvoice] = useState<Invoice | null>(null);
   const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null);
+  const [emailing, setEmailing] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -576,6 +577,44 @@ export default function InvoicesPage() {
                 <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>info@asecevents.com</p>
               </div>
             </div>
+
+            <button
+              onClick={async () => {
+                setEmailing(true);
+                try {
+                  const res = await fetch("/api/emails/invoice", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ invoiceId: viewInvoice.id }),
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    showToast("Receipt email sent successfully", "success");
+                    setViewInvoice(null);
+                  } else {
+                    showToast(data.message || "Failed to send email", "error");
+                  }
+                } catch (error) {
+                  showToast("Failed to send email", "error");
+                } finally {
+                  setEmailing(false);
+                }
+              }}
+              disabled={emailing}
+              className={`w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-50`}
+            >
+              {emailing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4" />
+                  Email Receipt
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
