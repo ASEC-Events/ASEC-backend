@@ -44,28 +44,34 @@ export async function GET(request: NextRequest) {
     const db = getFirestore();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
-    const number = searchParams.get("number");
+    const invoiceParam = searchParams.get("invoice") || searchParams.get("number");
 
-    console.log("Fetching invoice with id:", id, "number:", number);
+    console.log("Params - id:", id, "invoiceParam:", invoiceParam);
 
-    if (id) {
-      const invoiceDoc = await db.collection(INVOICES_COLLECTION).doc(id).get();
-      console.log("Invoice exists:", invoiceDoc.exists);
-      if (!invoiceDoc.exists) {
-        return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    // Accept 'invoice', 'id', or 'number' as search param
+    const searchId = invoiceParam || id;
+
+    if (searchId) {
+      console.log("Searching for:", searchId);
+      // First try as document ID
+      let invoiceDoc = await db.collection(INVOICES_COLLECTION).doc(searchId).get();
+      if (invoiceDoc.exists) {
+        console.log("Found by doc ID");
+        const data = invoiceDoc.data();
+        return NextResponse.json({ id: invoiceDoc.id, ...data });
       }
-      const data = invoiceDoc.data();
-      console.log("Invoice data:", data);
-      return NextResponse.json({ id: invoiceDoc.id, ...data });
-    } else if (number) {
-      const snapshot = await db.collection(INVOICES_COLLECTION).where("invoiceNumber", "==", number).get();
-      if (snapshot.empty) {
-        return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      
+      // Then try as invoice number
+      const snapshot = await db.collection(INVOICES_COLLECTION).where("invoiceNumber", "==", searchId).get();
+      if (!snapshot.empty) {
+        console.log("Found by invoiceNumber:", snapshot.size);
+        const doc = snapshot.docs[0];
+        const data = doc.data();
+        return NextResponse.json({ id: doc.id, ...data });
       }
-      const doc = snapshot.docs[0];
-      const data = doc.data();
-      console.log("Invoice data by number:", data);
-      return NextResponse.json({ id: doc.id, ...data });
+      
+      console.log("Not found");
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
     const snapshot = await db

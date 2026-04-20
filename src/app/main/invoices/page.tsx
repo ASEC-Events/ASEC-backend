@@ -175,7 +175,7 @@ export default function InvoicesPage() {
   };
 
   const handleCopyLink = async (invoice: Invoice) => {
-    const paymentUrl = `${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-web-app.web.app/pay'}?invoice=${invoice.bookingId}`;
+    const paymentUrl = `${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-web-app.web.app/pay'}?invoice=${invoice.invoiceNumber}`;
     try {
       await navigator.clipboard.writeText(paymentUrl);
       showToast("Payment link copied!", "success");

@@ -25,11 +25,11 @@ interface InvoiceEmailData {
   amount: number;
   guests: number;
   status: "pending" | "confirmed" | "paid";
-  bookingId?: string;
+  invoiceId?: string;
 }
 
 function generateInvoiceEmailHtml(data: InvoiceEmailData): string {
-  const { customerName, invoiceNumber, eventDate, eventType, amount, guests, status, bookingId } = data;
+  const { customerName, invoiceNumber, eventDate, eventType, amount, guests, status } = data;
   
   const statusColors = {
     pending: "#f59e0b",
@@ -88,7 +88,7 @@ function generateInvoiceEmailHtml(data: InvoiceEmailData): string {
 
     ${status !== 'paid' ? `
     <div style="text-align: center; margin-top: 20px;">
-      <a href="${paymentUrl}${bookingId ? '?invoice=' + bookingId : ''}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Pay Now</a>
+      <a href="${paymentUrl}${invoiceNumber ? '?invoice=' + invoiceNumber : ''}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Pay Now</a>
     </div>
     ` : ''}
 
