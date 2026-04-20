@@ -71,6 +71,8 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_PAYMENT_URL?.replace("/pay", "") || 
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
+    console.log("Paystack init - email:", email, "amount:", amount, "baseUrl:", baseUrl);
+
     const initializeArgs = {
       email,
       amount: Math.round(amount * 100),
@@ -83,9 +85,12 @@ export async function POST(request: NextRequest) {
       callbackUrl: `${baseUrl}/pay/callback?invoice=${invoiceId}`,
     };
 
+    console.log("Calling Paystack...");
     const response = await paystack.initializeTransaction(initializeArgs);
+    console.log("Paystack result:", response.status, response.message);
 
     if (!response.status) {
+      console.log("Paystack failed:", response);
       return NextResponse.json(
         { error: response.message || "Failed to initialize payment" },
         { status: 500 }
