@@ -86,10 +86,12 @@ export async function POST(request: NextRequest) {
     };
 
     console.log("Calling Paystack...");
-    const response = await paystack.initializeTransaction(initializeArgs);
-    console.log("Paystack result:", response.status, response.message);
+const response = await paystack.initializeTransaction(initializeArgs);
 
-    if (!response.status) {
+    // Paystack SDK returns response in response.body
+    const success = response.body?.status === true || response.status === true;
+
+    if (!success) {
       console.log("Paystack failed:", response);
       return NextResponse.json(
         { error: response.message || "Failed to initialize payment" },
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
     }
 
     await invoiceRef.update({
-      paymentReference: response.data.reference,
+      paymentReference: response.body?.data?.reference || response.data?.reference,
       paymentStatus: "pending",
       customerEmail: email,
       customerName: name,
@@ -107,8 +109,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      authorizationUrl: response.data.authorization_url,
-      reference: response.data.reference,
+      authorizationUrl: response.body?.data?.authorization_url || response.data?.authorization_url,
+      reference: response.body?.data?.reference || response.data?.reference,
     });
   } catch (error: any) {
     return NextResponse.json(

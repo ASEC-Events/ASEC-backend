@@ -8,14 +8,25 @@ declare module "paystack-node" {
   }
 
   interface InitializeTransactionResponse {
-    status: boolean;
-    message: string;
-    data: {
+    status?: boolean;
+    message?: string;
+    data?: {
       reference: string;
       authorization_url: string;
       access_code: string;
       amount: number;
       currency: string;
+    };
+    body?: {
+      status?: boolean;
+      message?: string;
+      data?: {
+        reference?: string;
+        authorization_url?: string;
+        access_code?: string;
+        amount?: number;
+        currency?: string;
+      };
     };
   }
 
