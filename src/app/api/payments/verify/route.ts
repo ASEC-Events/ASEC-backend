@@ -37,17 +37,25 @@ export async function GET(request: NextRequest) {
     await getFirebaseApp();
     const db = getFirestore();
 
-    const invoiceRef = db.collection(INVOICES_COLLECTION).doc(invoiceId);
-    const invoiceDoc = await invoiceRef.get();
+    let invoiceDoc;
+    let invoiceRef = db.collection(INVOICES_COLLECTION).doc(invoiceId);
+    invoiceDoc = await invoiceRef.get();
 
-    if (!invoiceDoc.exists) {
-      return NextResponse.json(
-        { success: false, message: "Invoice not found" },
-        { status: 404 }
-      );
+    if (!invoiceDoc || !invoiceDoc.exists) {
+      // Try by reference
+      const snapshot = await db.collection(INVOICES_COLLECTION).where("paymentReference", "==", reference).get();
+      if (!snapshot.empty) {
+        invoiceDoc = snapshot.docs[0];
+        invoiceRef = db.collection(INVOICES_COLLECTION).doc(invoiceDoc.id);
+      } else {
+        return NextResponse.json(
+          { success: false, message: "Invoice not found" },
+          { status: 404 }
+        );
+      }
     }
 
-    const invoiceData = invoiceDoc.data() as any;
+    const invoiceData = invoiceDoc?.data() || (await invoiceRef.get()).data() as any;
 
     if (invoiceData.status === "paid") {
       return NextResponse.json({

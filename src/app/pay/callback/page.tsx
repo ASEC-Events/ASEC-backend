@@ -8,7 +8,7 @@ function CallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const invoiceId = searchParams.get("invoice");
-  const reference = searchParams.get("reference");
+  const reference = searchParams.get("reference") || searchParams.get("trxref");
 
   const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
   const [message, setMessage] = useState("Verifying payment...");

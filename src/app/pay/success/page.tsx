@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle, Download, Mail, Home, Calendar } from "lucide-react";
+import Link from "next/link";
 
 interface InvoiceData {
   invoiceNumber: string;
@@ -114,13 +115,13 @@ function SuccessContent() {
               <p className="text-sm text-slate-500 mb-3">
                 Need help? Contact us at {process.env.NEXT_PUBLIC_COMPANY_EMAIL}
               </p>
-              <a
+              <Link
                 href="/"
                 className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 <Home className="w-4 h-4" />
                 Back to Home
-              </a>
+              </Link>
             </div>
           </div>
         </div>

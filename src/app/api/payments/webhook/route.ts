@@ -28,12 +28,29 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const trxref = searchParams.get("trxref");
   const reference = searchParams.get("reference");
+  const invoiceId = searchParams.get("invoice");
   
-  if (trxref || reference) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-admin.vercel.app/pay'}/callback?invoice=${trxref || reference}`);
+  let foundInvoiceId = invoiceId;
+  
+  // If no invoiceId, try to find it by reference
+  if (!foundInvoiceId && (trxref || reference)) {
+    try {
+      await getFirebaseApp();
+      const db = getFirestore();
+      const snapshot = await db.collection(INVOICES_COLLECTION).where("paymentReference", "==", trxref || reference).get();
+      if (!snapshot.empty) {
+        foundInvoiceId = snapshot.docs[0].id;
+      }
+    } catch (err) {
+      console.error("Error finding invoice:", err);
+    }
   }
   
-  return NextResponse.redirect(process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-admin.vercel.app/pay');
+  if (foundInvoiceId) {
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-admin.vercel.app/pay'}/callback?invoice=${foundInvoiceId}&reference=${trxref || reference}`);
+  }
+  
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-admin.vercel.app/pay'}?failed=true`);
 }
 
 export async function POST(request: NextRequest) {
