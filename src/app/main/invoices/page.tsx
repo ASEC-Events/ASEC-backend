@@ -46,6 +46,7 @@ export default function InvoicesPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
+  const [deleteInvoice, setDeleteInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -194,16 +195,17 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleDeleteInvoice = async (invoice: Invoice) => {
-    if (!confirm(`Delete invoice ${invoice.invoiceNumber}?`)) return;
+  const handleDeleteInvoice = async () => {
+    if (!deleteInvoice) return;
 
     try {
-      const res = await fetch(`/api/invoices?id=${invoice.id}`, {
+      const res = await fetch(`/api/invoices?id=${deleteInvoice.id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        setInvoices((prev) => prev.filter((inv) => inv.id !== invoice.id));
+        setInvoices((prev) => prev.filter((inv) => inv.id !== deleteInvoice.id));
+        setDeleteInvoice(null);
         showToast("Invoice deleted!", "success");
       } else {
         showToast("Failed to delete invoice", "error");
@@ -330,7 +332,7 @@ export default function InvoicesPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => handleDeleteInvoice(invoice)}
+                          onClick={() => setDeleteInvoice(invoice)}
                           className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                           title="Delete Invoice"
                         >
@@ -447,6 +449,23 @@ export default function InvoicesPage() {
                   </div>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteInvoice && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-xl w-full max-w-md p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+            <h2 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              Delete Invoice
+            </h2>
+            <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>
+              Are you sure you want to delete invoice <span className="font-medium">{deleteInvoice.invoiceNumber}</span>?
+            </p>
+            <div className="flex justify-end gap-3 mt-4">
+              <button onClick={() => setDeleteInvoice(null)} className="btn-secondary">Cancel</button>
+              <button onClick={handleDeleteInvoice} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Delete</button>
             </div>
           </div>
         </div>

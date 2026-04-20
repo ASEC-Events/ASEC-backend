@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const db = getFirestore();
 
     const data = await request.json();
-    const { bookingId, action } = data;
+    const { bookingId, action, amount } = data;
 
     if (!bookingId) {
       return NextResponse.json(
@@ -125,6 +125,7 @@ export async function POST(request: NextRequest) {
           status: "sent",
           sentAt: Date.now(),
           invoiceNumber,
+          amount: amount || existingData.amount || 0,
           updatedAt: Date.now(),
         });
 
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
           status: "sent",
           sentAt: Date.now(),
           invoiceNumber,
+          amount: amount || existingData.amount || 0,
         };
       } else if (action === "markPaid") {
         await db.collection(INVOICES_COLLECTION).doc(existingInvoice.id).update({
@@ -168,7 +170,7 @@ export async function POST(request: NextRequest) {
         customerEmail: booking.email,
         eventType: booking.eventType,
         eventDate: booking.eventDate,
-        amount: booking.amount || 0,
+        amount: amount || booking.amount || 0,
         guests: parseInt(booking.expectedGuests) || 0,
         status: "pending" as const,
         createdAt: Date.now(),
