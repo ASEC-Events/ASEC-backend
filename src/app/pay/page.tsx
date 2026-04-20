@@ -37,25 +37,19 @@ function PayPageContent() {
       }
 
       try {
-        console.log("Fetching invoice:", invoiceId);
-        // Try with id first, if fails try with number
         let res = await fetch(`/api/invoices?id=${invoiceId}`);
         if (!res.ok) {
           res = await fetch(`/api/invoices?number=${invoiceId}`);
         }
-        console.log("Response:", res.status);
         if (!res.ok) {
           const errData = await res.json();
-          console.log("Error:", errData);
           throw new Error(errData.error || "Invoice not found");
         }
         const data = await res.json();
-        console.log("Invoice data:", data);
         setInvoice(data);
         setEmail(data.customerEmail || "");
         setName(data.customerName || "");
       } catch (err: any) {
-        console.error("Fetch error:", err);
         setError(err.message || "Invoice not found");
       } finally {
         setLoading(false);
@@ -89,8 +83,9 @@ function PayPageContent() {
         throw new Error(data.error || "Failed to initialize payment");
       }
 
-      if (data.authorizationUrl) {
-        window.location.href = data.authorizationUrl;
+      const url = data.authorizationUrl || data.authorization_url || data.data?.authorization_url;
+      if (url) {
+        window.location.href = url;
       } else {
         throw new Error("Invalid payment response");
       }
