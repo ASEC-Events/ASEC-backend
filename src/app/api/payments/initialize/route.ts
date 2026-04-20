@@ -69,7 +69,8 @@ export async function POST(request: NextRequest) {
     const paystack = new Paystack(process.env.PAYSTACK_SECRET_KEY || "");
     
     const baseUrl = process.env.NEXT_PUBLIC_PAYMENT_URL?.replace("/pay", "") || 
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+      process.env.VERCEL_URL || 
+      "http://localhost:3000";
 
     const callbackUrl = `${baseUrl}/pay/callback?invoice=${invoiceId}`;
     
