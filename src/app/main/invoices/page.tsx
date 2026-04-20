@@ -463,8 +463,11 @@ export default function InvoicesPage() {
       )}
 
       {deleteInvoice && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className={`rounded-xl w-full max-w-md p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setDeleteInvoice(null)}>
+          <div 
+            className={`rounded-xl w-full max-w-md p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
               Delete Invoice
             </h2>
@@ -531,7 +534,7 @@ export default function InvoicesPage() {
                   </tr>
                   <tr>
                     <td className={`py-3 text-base font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>Total</td>
-                    <td className={`py-3 text-base font-bold text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>${viewInvoice.amount.toLocaleString()}</td>
+                    <td className={`py-3 text-base font-bold text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>d₦{viewInvoice.amount.toLocaleString()}</td>
                   </tr>
                 </tbody>
               </table>
