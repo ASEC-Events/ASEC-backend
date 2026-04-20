@@ -38,10 +38,20 @@ interface Invoice {
   updatedAt: number;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     getFirebaseApp();
     const db = getFirestore();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (id) {
+      const invoiceDoc = await db.collection(INVOICES_COLLECTION).doc(id).get();
+      if (!invoiceDoc.exists) {
+        return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      }
+      return NextResponse.json({ id: invoiceDoc.id, ...invoiceDoc.data() });
+    }
 
     const snapshot = await db
       .collection(INVOICES_COLLECTION)

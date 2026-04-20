@@ -26,7 +26,7 @@ function SuccessContent() {
       if (!invoiceId) return;
 
       try {
-        const res = await fetch(`/api/invoices/${invoiceId}`);
+        const res = await fetch(`/api/invoices?id=${invoiceId}`);
         if (res.ok) {
           const data = await res.json();
           setInvoice(data);

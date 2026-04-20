@@ -37,7 +37,7 @@ function PayPageContent() {
       }
 
       try {
-        const res = await fetch(`/api/invoices/${invoiceId}`);
+        const res = await fetch(`/api/invoices?id=${invoiceId}`);
         if (!res.ok) {
           throw new Error("Invoice not found");
         }
