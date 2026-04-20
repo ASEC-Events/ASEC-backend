@@ -38,7 +38,11 @@ function PayPageContent() {
 
       try {
         console.log("Fetching invoice:", invoiceId);
-        const res = await fetch(`/api/invoices?id=${invoiceId}`);
+        // Try with id first, if fails try with number
+        let res = await fetch(`/api/invoices?id=${invoiceId}`);
+        if (!res.ok) {
+          res = await fetch(`/api/invoices?number=${invoiceId}`);
+        }
         console.log("Response:", res.status);
         if (!res.ok) {
           const errData = await res.json();
