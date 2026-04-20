@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2 } from "lucide-react";
+import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2, Eye } from "lucide-react";
 import { useTheme } from "../../components/ThemeProvider";
 import { useToast } from "../../components/Toast";
 
@@ -47,6 +47,7 @@ export default function InvoicesPage() {
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
   const [deleteInvoice, setDeleteInvoice] = useState<Invoice | null>(null);
+  const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -302,7 +303,7 @@ export default function InvoicesPage() {
                       {invoice.eventDate}
                     </td>
                     <td className={`px-4 py-3 text-sm font-medium ${isDark ? "text-white" : "text-slate-800"}`}>
-                      ${invoice.amount.toLocaleString()}
+                       ₦{invoice.amount.toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
@@ -331,6 +332,13 @@ export default function InvoicesPage() {
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
+                        <button
+                          onClick={() => setViewInvoice(invoice)}
+                          className="p-2 text-slate-500 hover:bg-slate-500/10 rounded-lg transition-colors"
+                          title="View Invoice"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => setDeleteInvoice(invoice)}
                           className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
@@ -466,6 +474,72 @@ export default function InvoicesPage() {
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setDeleteInvoice(null)} className="btn-secondary">Cancel</button>
               <button onClick={handleDeleteInvoice} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewInvoice && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setViewInvoice(null)}>
+          <div 
+            className={`rounded-xl w-full max-w-lg p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                Invoice Preview
+              </h2>
+              <button 
+                onClick={() => setViewInvoice(null)} 
+                className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-100'}`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className={`rounded-lg p-4 ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
+              <div className="text-center mb-6 pb-4 border-b border-slate-300 dark:border-slate-600">
+                <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>ASEC Events</h3>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Invoice {viewInvoice.invoiceNumber}</p>
+              </div>
+
+              <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium mb-4 ${viewInvoice.status === 'paid' ? (isDark ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700') : viewInvoice.status === 'sent' ? (isDark ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-700') : (isDark ? 'bg-yellow-900/50 text-yellow-400' : 'bg-yellow-100 text-yellow-700')}`}>
+                {viewInvoice.status === 'paid' ? 'Receipt' : viewInvoice.status === 'sent' ? 'Sent' : 'Payment Request'}
+              </div>
+
+              <table className="w-full">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
+                  <tr>
+                    <td className={`py-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Customer</td>
+                    <td className={`py-2 text-sm text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>{viewInvoice.customerName}</td>
+                  </tr>
+                  <tr>
+                    <td className={`py-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Email</td>
+                    <td className={`py-2 text-sm text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>{viewInvoice.customerEmail}</td>
+                  </tr>
+                  <tr>
+                    <td className={`py-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Event Type</td>
+                    <td className={`py-2 text-sm text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>{viewInvoice.eventType}</td>
+                  </tr>
+                  <tr>
+                    <td className={`py-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Event Date</td>
+                    <td className={`py-2 text-sm text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>{viewInvoice.eventDate}</td>
+                  </tr>
+                  <tr>
+                    <td className={`py-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Guests</td>
+                    <td className={`py-2 text-sm text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>{viewInvoice.guests} guests</td>
+                  </tr>
+                  <tr>
+                    <td className={`py-3 text-base font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>Total</td>
+                    <td className={`py-3 text-base font-bold text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>${viewInvoice.amount.toLocaleString()}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div className={`mt-4 pt-4 border-t border-slate-300 dark:border-slate-600 text-center`}>
+                <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>ASEC Events</p>
+                <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>info@asecevents.com</p>
+              </div>
             </div>
           </div>
         </div>
