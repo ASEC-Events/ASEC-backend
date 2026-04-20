@@ -223,3 +223,27 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    getFirebaseApp();
+    const db = getFirestore();
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    await db.collection(INVOICES_COLLECTION).doc(id).delete();
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("Error deleting invoice:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to delete invoice" },
+      { status: 500 }
+    );
+  }
+}

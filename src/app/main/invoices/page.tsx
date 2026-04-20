@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail } from "lucide-react";
+import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2 } from "lucide-react";
 import { useTheme } from "../../components/ThemeProvider";
 import { useToast } from "../../components/Toast";
 
@@ -194,6 +194,26 @@ export default function InvoicesPage() {
     }
   };
 
+  const handleDeleteInvoice = async (invoice: Invoice) => {
+    if (!confirm(`Delete invoice ${invoice.invoiceNumber}?`)) return;
+
+    try {
+      const res = await fetch(`/api/invoices?id=${invoice.id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setInvoices((prev) => prev.filter((inv) => inv.id !== invoice.id));
+        showToast("Invoice deleted!", "success");
+      } else {
+        showToast("Failed to delete invoice", "error");
+      }
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      showToast("Failed to delete invoice", "error");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -309,6 +329,13 @@ export default function InvoicesPage() {
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
+                        <button
+                          onClick={() => handleDeleteInvoice(invoice)}
+                          className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Delete Invoice"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
