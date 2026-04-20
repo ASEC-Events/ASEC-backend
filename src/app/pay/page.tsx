@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CheckCircle, XCircle, CreditCard } from "lucide-react";
 
@@ -16,7 +16,7 @@ interface InvoiceData {
   status: string;
 }
 
-export default function PayPage() {
+function PayPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const invoiceId = searchParams.get("invoice");
@@ -213,5 +213,17 @@ export default function PayPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PayPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <PayPageContent />
+    </Suspense>
   );
 }
