@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       const existingInvoice = existingInvoicesSnapshot.docs[0];
       const existingData = existingInvoice.data() as Invoice;
 
-      if (action === "send") {
+      if (action === "send" || action === "resend") {
         const { sendInvoiceEmail, generateInvoiceNumber } = await import("@/lib/email");
 
         const invoiceNumber = existingData.invoiceNumber || generateInvoiceNumber();
@@ -109,9 +109,10 @@ export async function POST(request: NextRequest) {
           invoiceNumber,
           eventDate: booking.eventDate,
           eventType: booking.eventType,
-          amount: booking.amount || 0,
+          amount: amount || existingData.amount || 0,
           guests: parseInt(booking.expectedGuests) || 0,
           status: booking.status === "paid" ? "paid" : "pending",
+          bookingId: bookingId,
         });
 
         if (!emailSent) {
@@ -184,7 +185,7 @@ export async function POST(request: NextRequest) {
         ...newInvoice,
       };
 
-      if (action === "send") {
+      if (action === "send" || action === "resend") {
         const { sendInvoiceEmail } = await import("@/lib/email");
 
         const emailSent = await sendInvoiceEmail({
@@ -193,9 +194,10 @@ export async function POST(request: NextRequest) {
           invoiceNumber,
           eventDate: booking.eventDate,
           eventType: booking.eventType,
-          amount: booking.amount || 0,
+          amount: amount || booking.amount || 0,
           guests: parseInt(booking.expectedGuests) || 0,
           status: booking.status === "paid" ? "paid" : "pending",
+          bookingId: bookingId,
         });
 
         if (!emailSent) {

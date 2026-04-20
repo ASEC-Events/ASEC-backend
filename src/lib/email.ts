@@ -14,6 +14,7 @@ const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || "ASEC Events";
 const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@asecevents.com";
 const companyPhone = process.env.NEXT_PUBLIC_COMPANY_PHONE || "+1234567890";
 const companyAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "123 Event Street, City, Country";
+const paymentUrl = process.env.NEXT_PUBLIC_PAYMENT_URL || "https://asec-web-app.web.app/pay";
 
 interface InvoiceEmailData {
   to: string;
@@ -24,10 +25,11 @@ interface InvoiceEmailData {
   amount: number;
   guests: number;
   status: "pending" | "confirmed" | "paid";
+  bookingId?: string;
 }
 
 function generateInvoiceEmailHtml(data: InvoiceEmailData): string {
-  const { customerName, invoiceNumber, eventDate, eventType, amount, guests, status } = data;
+  const { customerName, invoiceNumber, eventDate, eventType, amount, guests, status, bookingId } = data;
   
   const statusColors = {
     pending: "#f59e0b",
@@ -80,9 +82,15 @@ function generateInvoiceEmailHtml(data: InvoiceEmailData): string {
       </tr>
       <tr>
         <td style="padding: 10px; background: #f1f5f9;"><strong>Total Amount</strong></td>
-        <td style="padding: 10px; background: #f1f5f9; text-align: right; font-size: 18px;"><strong>$${amount.toLocaleString()}</strong></td>
+        <td style="padding: 10px; background: #f1f5f9; text-align: right; font-size: 18px;"><strong>₦${amount.toLocaleString()}</strong></td>
       </tr>
     </table>
+
+    ${status !== 'paid' ? `
+    <div style="text-align: center; margin-top: 20px;">
+      <a href="${paymentUrl}${bookingId ? '?invoice=' + bookingId : ''}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Pay Now</a>
+    </div>
+    ` : ''}
 
     <div style="border-top: 2px solid #e2e8f0; padding-top: 20px; margin-top: 20px;">
       <p style="color: #64748b; font-size: 12px; margin: 0;">${companyName}</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Search, Edit, Trash2, Info, X } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Info, X, Loader2 } from "lucide-react";
 import { useTheme } from "../../components/ThemeProvider";
 import { useToast } from "../../components/Toast";
 
@@ -46,6 +46,8 @@ export default function EventsPage() {
   
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -108,6 +110,7 @@ export default function EventsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       if (editingEvent) {
         await fetch(`/api/bookings?id=${editingEvent.id}`, {
@@ -144,6 +147,8 @@ export default function EventsPage() {
       fetchEvents();
     } catch (error) {
       console.error("Error saving event:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -166,6 +171,7 @@ export default function EventsPage() {
 
   const handleDelete = async () => {
     if (!deleteEvent) return;
+    setDeleting(true);
     try {
       await fetch(`/api/bookings?id=${deleteEvent.id}`, { method: "DELETE" });
       showToast("Event deleted successfully", "success");
@@ -174,6 +180,7 @@ export default function EventsPage() {
       showToast("Failed to delete event", "error");
     } finally {
       setDeleteEvent(null);
+      setDeleting(false);
     }
   };
 
@@ -464,8 +471,10 @@ return (
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
-                  {editingEvent ? "Update Event" : "Add Event"}
+                <button type="submit" className="btn-primary" disabled={submitting}>
+                  {submitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : editingEvent ? "Update Event" : "Add Event"}
                 </button>
               </div>
             </form>
@@ -485,7 +494,9 @@ return (
             </p>
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setDeleteEvent(null)} className="btn-secondary">Cancel</button>
-              <button onClick={handleDelete} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Delete</button>
+              <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50">
+                  {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+                </button>
             </div>
           </div>
         </div>

@@ -143,12 +143,13 @@ export default function InvoicesPage() {
   const handleSendInvoice = async (invoice: Invoice) => {
     setSending(true);
     try {
+      const action = invoice.status === "sent" ? "resend" : "send";
       const res = await fetch("/api/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bookingId: invoice.bookingId,
-          action: "send",
+          action,
         }),
       });
 
@@ -323,6 +324,16 @@ export default function InvoicesPage() {
                             <Send className="w-4 h-4" />
                           </button>
                         )}
+                        {invoice.status === "sent" && (
+                          <button
+                            onClick={() => handleSendInvoice(invoice)}
+                            disabled={sending}
+                            className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                            title="Resend Invoice"
+                          >
+                            <Send className="w-4 h-4" />
+                          </button>
+                        )}
                         {invoice.status !== "paid" && (
                           <button
                             onClick={() => handleMarkPaid(invoice)}
@@ -426,7 +437,7 @@ export default function InvoicesPage() {
                   </div>
 
                   <div>
-                    <label className="label">Amount ($)</label>
+                    <label className="label">Amount (₦)</label>
                     <input
                       type="number"
                       value={amount}
@@ -534,7 +545,7 @@ export default function InvoicesPage() {
                   </tr>
                   <tr>
                     <td className={`py-3 text-base font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>Total</td>
-                    <td className={`py-3 text-base font-bold text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>d₦{viewInvoice.amount.toLocaleString()}</td>
+                    <td className={`py-3 text-base font-bold text-right ${isDark ? 'text-white' : 'text-slate-800'}`}>₦{viewInvoice.amount.toLocaleString()}</td>
                   </tr>
                 </tbody>
               </table>

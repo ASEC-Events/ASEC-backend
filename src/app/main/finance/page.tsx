@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Search, DollarSign, TrendingUp, TrendingDown, Download, Trash2, X } from 'lucide-react';
+import { Plus, Search, DollarSign, TrendingUp, TrendingDown, Download, Trash2, X, Loader2 } from 'lucide-react';
 import { useTheme } from '../../components/ThemeProvider';
 import { useToast } from '../../components/Toast';
 
@@ -23,6 +23,8 @@ export default function FinancePage() {
   const { showToast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [showModal, setShowModal] = useState(false);
@@ -79,6 +81,7 @@ export default function FinancePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const payload = {
         ...formData,
@@ -97,11 +100,14 @@ export default function FinancePage() {
       fetchTransactions();
     } catch (error) {
       showToast("Failed to add transaction", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const confirmDelete = async () => {
     if (!deleteTransaction) return;
+    setDeleting(true);
     try {
       await fetch(`/api/finance?id=${deleteTransaction.id}`, { method: 'DELETE' });
       showToast("Transaction deleted successfully", "success");
@@ -110,6 +116,7 @@ export default function FinancePage() {
       showToast("Failed to delete transaction", "error");
     } finally {
       setDeleteTransaction(null);
+      setDeleting(false);
     }
   };
 
@@ -370,8 +377,8 @@ export default function FinancePage() {
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
-                  Add Transaction
+                <button type="submit" className="btn-primary" disabled={submitting}>
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add Transaction"}
                 </button>
 </div>
             </form>
@@ -390,7 +397,9 @@ export default function FinancePage() {
             </p>
             <div className="flex justify-end gap-3 mt-4">
               <button onClick={() => setDeleteTransaction(null)} className="btn-secondary">Cancel</button>
-              <button onClick={confirmDelete} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Delete</button>
+              <button onClick={confirmDelete} disabled={deleting} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50">
+                  {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+                </button>
             </div>
           </div>
         </div>
