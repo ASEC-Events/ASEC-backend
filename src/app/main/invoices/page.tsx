@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2, Eye } from "lucide-react";
+import { FileText, Send, CheckCircle, Clock, Search, Plus, X, Mail, Trash2, Eye, Loader2 } from "lucide-react";
 import { useTheme } from "../../components/ThemeProvider";
 import { useToast } from "../../components/Toast";
 
@@ -450,20 +450,21 @@ export default function InvoicesPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleCreateInvoice(selectedBooking, false)}
-                      className={`flex-1 px-4 py-2 rounded-lg border ${
+                      disabled={sending}
+                      className={`flex-1 px-4 py-2 rounded-lg border disabled:opacity-50 ${
                         isDark
                           ? "border-slate-600 text-slate-300 hover:bg-slate-700"
                           : "border-slate-300 text-slate-700 hover:bg-slate-100"
                       } transition-colors`}
                     >
-                      Create Only
+                      {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Only"}
                     </button>
                     <button
                       onClick={() => handleCreateInvoice(selectedBooking, true)}
-                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                      disabled={sending}
+                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <Send className="w-4 h-4" />
-                      Create & Send
+                      {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Create & Send</>}
                     </button>
                   </div>
                 </>
