@@ -65,11 +65,11 @@ export async function POST(request: NextRequest) {
       email,
       amount: Math.round(amount * 100),
       currency: "NGN",
-      metadata: {
+      metadata: JSON.stringify({
         invoiceId,
         customerName: name,
         invoiceNumber: invoiceData.invoiceNumber,
-      },
+      }),
       callbackUrl: `${baseUrl}/pay/callback?invoice=${invoiceId}`,
     };
 

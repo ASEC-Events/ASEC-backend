@@ -3,7 +3,7 @@ declare module "paystack-node" {
     email: string;
     amount: number;
     currency?: string;
-    metadata?: Record<string, unknown>;
+    metadata?: Record<string, unknown> | string;
     callbackUrl?: string;
   }
 
