@@ -10,7 +10,8 @@ import {
   Users, 
   Settings,
   Bell,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 
@@ -23,6 +24,7 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/main', icon: LayoutDashboard },
   { name: 'Events', href: '/main/events', icon: Calendar },
+  { name: 'Invoices', href: '/main/invoices', icon: FileText },
   { name: 'Finance', href: '/main/finance', icon: DollarSign },
   { name: 'Staff', href: '/main/staff', icon: Users },
   { name: 'Notifications', href: '/main/notifications', icon: Bell, showBadge: true },
