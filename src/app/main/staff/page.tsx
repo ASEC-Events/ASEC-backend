@@ -15,6 +15,7 @@ interface Staff {
   status: string;
   salary: number;
   hireDate: string;
+  accountNumber?: string;
 }
 
 const departments = ['Events', 'Catering', 'Security', 'Marketing', 'Maintenance', 'Admin', 'Technical', 'HR'];
@@ -54,6 +55,7 @@ export default function StaffPage() {
     status: 'active',
     salary: '',
     hireDate: '',
+    accountNumber: '',
   });
 
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function StaffPage() {
 
       setShowModal(false);
       setEditingStaff(null);
-      setFormData({ name: '', email: '', phone: '', role: '', department: '', status: 'active', salary: '', hireDate: '' });
+      setFormData({ name: '', email: '', phone: '', role: '', department: '', status: 'active', salary: '', hireDate: '', accountNumber: '' });
       fetchStaff();
     } catch (error) {
       showToast("Failed to save staff", "error");
@@ -116,6 +118,7 @@ export default function StaffPage() {
       status: member.status,
       salary: String(member.salary),
       hireDate: member.hireDate,
+      accountNumber: member.accountNumber || '',
     });
     setShowModal(true);
   };
@@ -373,6 +376,16 @@ export default function StaffPage() {
                     required
                   />
                 </div>
+              </div>
+              <div>
+                <label className="label">Account Number (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.accountNumber}
+                  onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                  className="input"
+                  placeholder="e.g., 0123456789"
+                />
               </div>
               <div>
                 <label className="label">Status</label>
