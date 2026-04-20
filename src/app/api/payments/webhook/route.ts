@@ -24,6 +24,18 @@ const INVOICES_COLLECTION = "invoices";
 const BOOKINGS_COLLECTION = "bookings";
 const FINANCE_COLLECTION = "finance";
 
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const trxref = searchParams.get("trxref");
+  const reference = searchParams.get("reference");
+  
+  if (trxref || reference) {
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-admin.vercel.app/pay'}/callback?invoice=${trxref || reference}`);
+  }
+  
+  return NextResponse.redirect(process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://asec-admin.vercel.app/pay');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
